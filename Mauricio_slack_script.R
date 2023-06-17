@@ -7,7 +7,7 @@ library(dplyr)
 #kth_projects <- swecris_funding()
 
 swecris_all_university_projects <- function (searchstring = "", 
-                                  token) 
+                                             token) 
 {
   if (missing(token)) 
     token <- "RWNDZ3FDRVVSMmNUNlZkMkN3"
@@ -21,5 +21,3 @@ swecris_all_university_projects <- function (searchstring = "",
 #get the data to an object
 
 all_university_projects <- swecris_all_university_projects()
-
-all_projects <- swecris_fundings()

@@ -1,6 +1,9 @@
 #Map demo from https://github.com/reinholdsson/swemaps/blob/master/README.md readme
 # install.packages('devtools')
 #devtools::install_github('reinholdsson/swemaps')
+library(rkolada)  # devtools::install_github("reinholdsson/rkolada")
+# rkolada conn
+a <- rkolada::rkolada()
 
 library(swemaps)
 library(leaflet)  # devtools::install_github("rstudio/leaflet")

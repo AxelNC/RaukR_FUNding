@@ -1,3 +1,4 @@
+library(tidyverse)
 library(devtools)
 install_github("KTH-Library/swecris", dependencies = TRUE)
 library(swecris)

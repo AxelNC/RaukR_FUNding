@@ -21,35 +21,88 @@ projdata %>% group_by(FundingYear) %>%
 
 
 #year
-projdata %>% group_by(FundingYear) %>% 
-  summarise(Total_funding = sum(FundingsSek)) %>%
-  ggplot(aes(x = FundingYear, y = Total_funding)) +
+per_year <- projdata %>% group_by(FundingYear) %>% 
+  summarise(Total_funding = sum(FundingsSek))
+  
+per_year %>% ggplot(aes(x = FundingYear, y = Total_funding)) +
   geom_line() +
   geom_point() +
   ggtitle("Sweden Research Funding by Year") +
   scale_x_continuous(name="Year",
-                     breaks = seq(from = 2008, to= 2024, by = 2)) +
+                     breaks = seq(from = min(per_year$FundingYear), to= max(per_year$FundingYear), by = 2)) +
   scale_y_continuous(name = "Total Funding (billion SEK)",
-                     breaks = seq(from = 0, to = 14000000000, by = 1000000000),
+                     breaks = seq(from = 0, to = max(per_year$Total_funding), by = 1000000000),
                      labels = function(x) paste0(x / 1000000000))
 
 #University
 
-projdata %>% group_by(CoordinatingOrganisationNameEn) %>% 
+per_univ <- projdata %>% group_by(CoordinatingOrganisationNameEn) %>% 
   summarise(Total_funding = sum(FundingsSek)) %>%
   arrange(desc(Total_funding)) %>%
-  slice(1:5) %>%
-  ggplot(aes(x = reorder(CoordinatingOrganisationNameEn, +Total_funding), y = Total_funding)) +
+  slice(1:5)
+
+
+per_univ %>% ggplot(aes(x = reorder(CoordinatingOrganisationNameEn, +Total_funding), y = Total_funding)) +
   geom_bar(stat="identity", fill="steelblue") +
   xlab("Top 5 Sweden Institutions by total funding") +
   scale_y_continuous(name = "Total Funding (billion SEK)",
-                     breaks = seq(from = 0, to = 20755721767, by = 5000000000),
-                     labels = function(x) paste0(x / 5000000000)) +
-  theme(axis.text.y = element_text(angle = 45, hjust = 1)) +
+                     breaks = seq(from = 0, to = max(per_univ$Total_funding), by = 5000000000),
+                     labels = function(x) paste0(x / 1000000000)) +
+  theme(axis.text.y = element_text(angle = 30, hjust = 1)) +
+  coord_flip()
+
+#Organization type
+
+per_orgtype <- projdata %>% group_by(CoordinatingOrganisationTypeOfOrganisationEn) %>% 
+  summarise(Total_funding = sum(FundingsSek)) %>%
+  arrange(desc(Total_funding))
+
+per_orgtype %>%
+  ggplot(aes(x = reorder(CoordinatingOrganisationTypeOfOrganisationEn, +Total_funding), y = Total_funding)) +
+  geom_bar(stat="identity", fill="steelblue") +
+  xlab("Total funding by type of organization") +
+  scale_y_continuous(name = "Total Funding (billion SEK)",
+                     breaks = seq(from = 0, to = max(per_orgtype$Total_funding), by = 20000000000),
+                     labels = function(x) paste0(x / 1000000000)) +
+  theme(axis.text.y = element_text(angle = 30, hjust = 1)) +
+  coord_flip()
+
+per_funder <- projdata %>% group_by(FundingOrganisationNameEn) %>% 
+  summarise(Total_funding = sum(FundingsSek)) %>%
+  arrange(desc(Total_funding)) %>%
+  slice(1:5)
+
+per_funder %>%
+  ggplot(aes(x = reorder(FundingOrganisationNameEn, +Total_funding), y = Total_funding)) +
+  geom_bar(stat="identity", fill="steelblue") +
+  xlab("Total funding by funding organization") +
+  scale_y_continuous(name = "Total Funding (billion SEK)",
+                     breaks = seq(from = 0, to = max(per_funder$Total_funding), by = 20000000000),
+                     labels = function(x) paste0(x / 1000000000)) +
+  theme(axis.text.y = element_text(angle = 30, hjust = 1)) +
   coord_flip()
 
 
+####function
 
+plot_function <- function(x ,var, var_name, scale_number, scale_label) {
+  df <- x %>% group_by(var) %>% 
+    summarise(Total_funding = sum(FundingsSek)) %>%
+    arrange(desc(Total_funding)) %>%
+    slice(1:5)
+  
+  df %>%
+    ggplot(aes(x = reorder(var, +Total_funding), y = Total_funding)) +
+    geom_bar(stat="identity", fill="steelblue") +
+    xlab(paste0("Total funding by ", var_name)) +
+    scale_y_continuous(name = "Total Funding (billion SEK)",
+                       breaks = seq(from = 0, to = max(df$Total_funding), by = scale_number),
+                       labels = function(x) paste0(x / scale_label)) +
+    theme(axis.text.y = element_text(angle = 30, hjust = 1)) +
+    coord_flip()
+}
+
+plot_function(x = projdata ,var = "FundingOrganisationNameEn", "funding organization", 20000000000, 1000000000)
 
 ###autoplot
 

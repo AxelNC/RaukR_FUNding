@@ -1,4 +1,7 @@
 #Map demo from https://github.com/reinholdsson/swemaps/blob/master/README.md readme
+# install.packages('devtools')
+#devtools::install_github('reinholdsson/swemaps')
+
 library(swemaps)
 library(leaflet)  # devtools::install_github("rstudio/leaflet")
 

@@ -65,6 +65,61 @@ scbcat_df<- scbs.codes %>%
 scbcat_filter_vec <- scbcat_df$scb_code
 #
 rm(all_university_projects, involved.people, proj_nest1, 
-   proj_nest2, proj_nest2.small, scbs.codes, tokenized, swecris_all_university_projects)
+   proj_nest2, proj_nest2.small, scbs.codes, tokenized, 
+   swecris_all_university_projects, scbs.codes.mini)
 
 
+#save books in separate files
+library(tictoc)
+tic("book_1")
+book_1 <- token_wo_stopwords %>% filter(grepl("1", scbs.codes.mini))
+toc() #book_1: 165.9 sec elapsed
+
+#write.csv2(file = "book_1.csv", x = book_1);rm(book_1)
+#2
+tic("book_2")
+book_2 <- token_wo_stopwords %>% filter(grepl("2", scbs.codes.mini))
+toc() #book_2: 162.78 sec elapsed
+#write.csv2("book_2.csv", book_2);rm(book_2)
+#3
+tic("book_3")
+book_3 <- token_wo_stopwords %>% filter(grepl("3", scbs.codes.mini))
+toc()
+#write.csv2("book_3.csv", book_3);rm(book_3)
+#4
+tic("book_4")
+book_4 <- token_wo_stopwords %>% filter(grepl("4", scbs.codes.mini))
+toc()
+#write.csv2("book_4.csv", book_4);rm(book_4)
+#5
+tic("book_5")
+book_5 <- token_wo_stopwords %>% filter(grepl("5", scbs.codes.mini))
+toc()
+#write.csv2("book_5.csv", book_5);rm(book_5)
+#6
+tic("book_6")
+book_6 <- token_wo_stopwords %>% filter(grepl("6", scbs.codes.mini))
+toc()
+#write.csv2("book_6.csv", book_6);rm(book_6)
+#9
+tic("book_9")
+book_9 <- token_wo_stopwords %>% filter(grepl("9", scbs.codes.mini))
+toc()
+#write.csv2("book_9.csv", book_9);rm(book_9)
+#save as RDS
+save(book_1, book_2, book_3, book_4, 
+     book_5, book_6, book_9,  file = "wordcloud_categories.RData")
+#remove books
+rm(book_1, book_2, book_3, book_4, book_5, book_6, book_9)
+
+load("wordcloud_categories.RData")
+
+#####################################################################
+library(wordcloud)
+library(tm)
+#make wordcloud from data
+# category 1
+book_1 %>% 
+  count(word, sort = TRUE, name = "nr_words") %>% 
+  slice_max(order_by = nr_words, n = 40) %>% 
+  {wordcloud(.$word, .$nr_words, )}

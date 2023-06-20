@@ -36,22 +36,23 @@ plot_variable <- function(data, variable) {
 }
 
 # Usage example: projdata is the data frame with all data
-plot_variable(all_university_projects, CoordinatingOrganisationTypeOfOrganisationEn)
-
-plot_variable(all_university_projects, CoordinatingOrganisationNameEn)
-
-plot_variable(all_university_projects, FundingOrganisationNameEn)
-
-plot_variable(all_university_projects, TypeOfAwardDescrEn)
+# plot_variable(all_university_projects, CoordinatingOrganisationTypeOfOrganisationEn)
+# 
+# plot_variable(all_university_projects, CoordinatingOrganisationNameEn)
+# 
+# plot_variable(all_university_projects, FundingOrganisationNameEn)
+# 
+# plot_variable(all_university_projects, TypeOfAwardDescrEn)
 
 
 
 # all_university_projects <- read_csv("all_university_projects.csv")
-small_dataset <- head(all_university_projects, n = 100L) %>% 
+small_dataset <- all_university_projects %>% 
   select(FundingYear,
          FundingsSek,
          CoordinatingOrganisationNameEn,
          CoordinatingOrganisationTypeOfOrganisationEn,
+         FundingOrganisationNameEn,
          TypeOfAwardDescrEn)
 
 
@@ -127,10 +128,8 @@ shinyApp(
     output$text_selection_output <- renderText(paste0("You selected: ", input$select_input_x,  " and ", input$select_input_y))
 
     output$plot_output <- renderPlot({
-      ggplot(all_university_projects,
-             mapping = aes(x = !!sym(input$select_input_x),
-                           y = !!sym(input$select_input_y))) +
-        geom_point()})
+      plot_variable(small_dataset, !!sym(input$select_input_y))
+      })
     
     # MODULE 2 [map]:
     output$map_output <- renderUI(m)

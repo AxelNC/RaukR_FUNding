@@ -20,11 +20,6 @@ for (kn in unique(x$knkod)) {
 # m
 
 
-######## Logos
-html_chalmers <- "https://upload.wikimedia.org/wikipedia/en/3/3f/Formal_Seal_of_Chalmers_tekniska_h%C3%B6gskola%2C_G%C3%B6teborg%2C_V%C3%A4stra_G%C3%B6talands_l%C3%A4n%2C_Sverige.svg"
-########
-
-
 placeholder_plot <- hist(rnorm(1000))
 
 
@@ -57,18 +52,19 @@ tab2 <- tabPanel("Geography",
                  uiOutput("map_output", width="720px"))
 
 
+
+
+
+
+
 # HERE IS THE ACTUAL APP:
 shinyApp(
-  ui=fluidPage(#theme = bslib::bs_theme(primary = "#78C2AD"),
-    titlePanel("Welcome to the FUNding application"),
-    imageOutput("photo"),
-    headerPanel("Please select your analysis"),
-    mainPanel(tabsetPanel(
-      tab1,
-      tab2,
-      tabPanel("Grant applicants"),
-      tabPanel("Analysis of abstracts")
-    ))),
+  ui=navbarPage("Welcome to the FUNding application",#theme = bslib::bs_theme(primary = "#78C2AD"),
+                tab1,
+                tab2,
+                tabPanel("Grant applicants"),
+                tabPanel("Analysis of abstracts")
+    ),
   
   
   server=function(input,output) {
@@ -78,21 +74,6 @@ shinyApp(
       hist(rnorm(1000))
     })
     
-    # ======== temporary!
-    output$photo <- renderImage({
-      # When input$n is 1, filename is ./images/image1.jpeg
-      filename <- normalizePath(file.path('./images/rauk.jpeg'))
-      
-      # Return a list containing the filename
-      list(src = filename, width = "200px", height = "200px")
-    }, deleteFile = FALSE)
-    # ======== temporary!
-    
     # MODULE 2 [map]:
     output$map_output <- renderUI(m)
   })
-
-
-# tabsetPanel(
-#   div(tabPanel("Table", dataTableOutput("table")), style = 'width:5500px;')
-# )

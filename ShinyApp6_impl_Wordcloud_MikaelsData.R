@@ -202,8 +202,8 @@ scbcat_df<- scbs.codes %>%
   select(-ProjectId) %>% 
   arrange(scb_code)
 
- book_selection <- as.vector(scbcat_df[2]) %>% unname() %>% unlist()
- # book_selection2 <- 
+book_selection <- as.vector(scbcat_df[2]) %>% unname() %>% unlist()
+book_selection <- c("All fields", book_selection)
 
 
 # People dataset

@@ -2,6 +2,7 @@ library(devtools)
 install_github("KTH-Library/swecris", dependencies = TRUE)
 library(swecris)
 library(dplyr)
+library(tidyverse)
 
 #I modified the following function from swecris, and removed the search string that specified KTH
 #kth_projects <- swecris_funding()
@@ -20,6 +21,6 @@ swecris_all_university_projects <- function (searchstring = "",
 
 #get the data to an object
 
-all_university_projects <- swecris_all_university_projects()
+projdata <- swecris_all_university_projects()
 
 all_projects <- swecris_fundings()

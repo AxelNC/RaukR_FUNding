@@ -1,5 +1,5 @@
 library(tidyverse)
-library(ggplot2)
+library(ggthemes)
 
 projdata <- readxl::read_excel("C://Users/MauricioRoza/Desktop/all_university_projects.xlsx")
 
@@ -82,31 +82,113 @@ per_funder %>%
   theme(axis.text.y = element_text(angle = 30, hjust = 1)) +
   coord_flip()
 
+########################function to implement
 
-####function
+############## chatgpt solution
 
-plot_function <- function(x ,var, var_name, scale_number, scale_label) {
-  df <- x %>% group_by(var) %>% 
+plot_variable <- function(data, variable) {
+  top_5 <- data %>%
+    group_by({{ variable }}) %>%
     summarise(Total_funding = sum(FundingsSek)) %>%
     arrange(desc(Total_funding)) %>%
-    slice(1:5)
+    top_n(5, Total_funding) %>%
+    select({{ variable }})
   
-  df %>%
-    ggplot(aes(x = reorder(var, +Total_funding), y = Total_funding)) +
-    geom_bar(stat="identity", fill="steelblue") +
-    xlab(paste0("Total funding by ", var_name)) +
+  top_5 <- as.vector(top_5[[1]])
+  
+  per_univ <- data %>%
+    group_by(FundingYear, {{ variable }}) %>%
+    summarise(Total_funding = sum(FundingsSek)) %>%
+    arrange(desc(Total_funding)) %>%
+    filter({{ variable }} %in% top_5)
+  
+  per_univ %>% ggplot(aes(x = FundingYear, y = Total_funding, fill = {{ variable }}, col = {{ variable }})) +
+    geom_line() +
+    geom_point() +
+    ggtitle("Sweden Research Funding by Year") +
+    scale_x_continuous(name="Year",
+                       breaks = seq(from = min(per_univ$FundingYear), to= max(per_univ$FundingYear), by = 2)) +
     scale_y_continuous(name = "Total Funding (billion SEK)",
-                       breaks = seq(from = 0, to = max(df$Total_funding), by = scale_number),
-                       labels = function(x) paste0(x / scale_label)) +
-    theme(axis.text.y = element_text(angle = 30, hjust = 1)) +
-    coord_flip()
+                       breaks = seq(from = 0, to = max(per_univ$Total_funding), by = 1000000000),
+                       labels = function(x) paste0(x / 1000000000))
 }
 
-plot_function(x = projdata ,var = "FundingOrganisationNameEn", "funding organization", 20000000000, 1000000000)
+# Usage example:
+plot_variable(projdata, CoordinatingOrganisationTypeOfOrganisationEn)
 
-###autoplot
+plot_variable(projdata, CoordinatingOrganisationNameEn)
 
-projdata %>% group_by(FundingYear) %>% 
-  summarise(Total_funding = sum(FundingYear)) %>%
-  data.frame %>%
-  autoplot()
+plot_variable(projdata, FundingOrganisationNameEn)
+
+plot_variable(projdata, TypeOfAwardDescrEn)
+
+plot_variable(projdata, FundingYear)
+
+
+names(projdata)
+
+
+###################implement function to work with funding year
+
+plot_variable <- function(data, variable) {
+  variable_name <- deparse(substitute(variable))
+  variable_vector <- c(variable_name)
+  
+  if (variable_vector == "FundingYear") {
+    per_year <- data %>%
+      group_by({{ variable }}) %>%
+      summarise(Total_funding = sum(FundingsSek))
+  
+    per_year %>% ggplot(aes(x = {{ variable }}, y = Total_funding)) +
+        geom_line(aes(col = "blue")) +
+        geom_point() +
+        ggtitle("Sweden Research Funding by Year") +
+        scale_x_continuous(name = "Year",
+                           breaks = seq(from = min(per_year$FundingYear), to = max(per_year$FundingYear), by = 2)) +
+        scale_y_continuous(name = "Total Funding (billion SEK)",
+                           breaks = seq(from = 0, to = max(per_year$Total_funding), by = 1000000000),
+                           labels = function(x) paste0(x / 1000000000)) +
+      theme_hc() + scale_colour_hc() +
+      theme(legend.position = "none")
+    }
+  
+  else {
+    
+  top_5 <- data %>%
+    group_by({{ variable }}) %>%
+    summarise(Total_funding = sum(FundingsSek)) %>%
+    arrange(desc(Total_funding)) %>%
+    top_n(5, Total_funding) %>%
+    select({{ variable }})
+  
+  top_5 <- as.vector(top_5[[1]])
+  
+  per_univ <- data %>%
+    group_by(FundingYear, {{ variable }}) %>%
+    summarise(Total_funding = sum(FundingsSek)) %>%
+    arrange(desc(Total_funding)) %>%
+    filter({{ variable }} %in% top_5)
+  
+  per_univ %>% ggplot(aes(x = FundingYear, y = Total_funding, fill = {{ variable }}, col = {{ variable }})) +
+    geom_line() +
+    geom_point() +
+    ggtitle("Sweden Research Funding by Year") +
+    scale_x_continuous(name = "Year",
+                       breaks = seq(from = min(per_univ$FundingYear), to = max(per_univ$FundingYear), by = 2)) +
+    scale_y_continuous(name = "Total Funding (billion SEK)",
+                       breaks = seq(from = 0, to = max(per_univ$Total_funding), by = 1000000000),
+                       labels = function(x) paste0(x / 1000000000)) +
+    theme_hc()+ scale_colour_hc() +
+    theme(legend.position = "bottom",
+          legend.title = element_blank())
+  
+  }
+}
+
+plot_variable(projdata, CoordinatingOrganisationTypeOfOrganisationEn)
+plot_variable(projdata, CoordinatingOrganisationNameEn)
+plot_variable(projdata, FundingOrganisationNameEn)
+plot_variable(projdata, TypeOfAwardDescrEn)
+plot_variable(projdata, FundingYear)
+
+names(projdata)

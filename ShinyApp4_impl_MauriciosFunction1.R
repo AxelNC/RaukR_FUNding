@@ -7,7 +7,9 @@
 # library(swemaps)
 # library(leaflet)  # devtools::install_github("rstudio/leaflet")
 
-# Functions from Mauricio 2023-06-20
+
+######## Functions ######
+# Function from Mauricio 2023-06-20 15:05
 plot_variable <- function(data, variable) {
   top_5 <- data %>%
     group_by({{ variable }}) %>%
@@ -46,16 +48,6 @@ plot_variable <- function(data, variable) {
 
 
 
-# all_university_projects <- read_csv("all_university_projects.csv")
-small_dataset <- all_university_projects %>% 
-  select(FundingYear,
-         FundingsSek,
-         CoordinatingOrganisationNameEn,
-         CoordinatingOrganisationTypeOfOrganisationEn,
-         FundingOrganisationNameEn,
-         TypeOfAwardDescrEn)
-
-
 # Map3 from Axel 2023-06-17 16:53
 x <- map_kn
 
@@ -67,6 +59,33 @@ for (kn in unique(x$knkod)) {
 }
 # To plot: call 
 # m
+
+####### END #######
+
+
+####### Datasets #######
+
+# all_university_projects <- read_csv("all_university_projects.csv")
+small_dataset <- all_university_projects %>% 
+  select(FundingYear,
+         FundingsSek,
+         CoordinatingOrganisationNameEn,
+         CoordinatingOrganisationTypeOfOrganisationEn,
+         FundingOrganisationNameEn,
+         TypeOfAwardDescrEn)
+####### END #######
+
+
+####### Global variables #######
+x_variable_names <- list("Funding year",
+                      "Funding [SEK]",
+                      "Name of coordinating organization",
+                      "Type of coordinating organization",
+                      "Name of funding organization",
+                      "Type of award")
+x_variables <- colnames(small_dataset)
+names(x_variables) <- x_variable_names
+####### END #######
 
 
 # Here is the defintion of the ui for the first module
@@ -82,11 +101,13 @@ tab1 <- tabPanel("Correlation of variables",
                                #             "Type of grant",
                                #             "Research field",
                                #             "Gender of principal investigator")
-                               choices = colnames(small_dataset)
+                               # choices = colnames(small_dataset)
+                               choices = x_variables,
+                               selected = x_variables[3]
                                ),
                    selectInput("select_input_y",
                                label = "Please select your y axis variable",
-                               choices = colnames(small_dataset)
+                               choices = x_variables
                    ),
                  ),
                  mainPanel(
@@ -125,16 +146,16 @@ shinyApp(
   
   server=function(input,output) {
     # MODULE 1 [correlation]:
-    output$text_selection_output <- renderText(paste0("You selected: ", input$select_input_x,  " and ", input$select_input_y))
+    output$text_selection_output <- renderText(paste0("You selected: ", 
+                                                      names(input$select_input_x),  
+                                                      " and ", 
+                                                      input$select_input_y))
 
     output$plot_output <- renderPlot({
-      plot_variable(small_dataset, !!sym(input$select_input_y))
+      plot_variable(small_dataset, !!sym(input$select_input_x))
       })
     
     # MODULE 2 [map]:
     output$map_output <- renderUI(m)
   })
-
-
-small_dataset
 

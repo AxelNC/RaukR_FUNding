@@ -53,7 +53,10 @@ tokenized <- proj_nest2.small %>% unnest_tokens(word,
                                                 to_lower = T)
 #delete so called stop-words
 token_wo_stopwords <- tokenized %>% anti_join(stop_words)
-#
+#save the word freq of all words
+book_all_count  <-  token_wo_stopwords %>% 
+  count(word, sort = TRUE, name = "nr_words") %>%  
+  slice_max(order_by = nr_words, n = 300)
 #make a df of scb categories to filter on
 scbcat_df<- scbs.codes %>% 
   filter(scb_code<10) %>% 
@@ -67,8 +70,8 @@ scbcat_filter_vec <- scbcat_df$scb_code
 rm(all_university_projects, involved.people, proj_nest1, 
    proj_nest2, proj_nest2.small, scbs.codes, tokenized, 
    swecris_all_university_projects, scbs.codes.mini)
-
-
+#DO NOT SAVE# LOAD after this####
+##########################################################################
 #save books in separate files
 library(tictoc)
 tic("book_1")
@@ -111,15 +114,50 @@ save(book_1, book_2, book_3, book_4,
      book_5, book_6, book_9,  file = "wordcloud_categories.RData")
 #remove books
 rm(book_1, book_2, book_3, book_4, book_5, book_6, book_9)
-
+#####################################################################
+#Load Books#######
 load("wordcloud_categories.RData")
+#####################################################################
+book_1_count  <-  book_1 %>% 
+  count(word, sort = TRUE, name = "nr_words") %>%  
+  slice_max(order_by = nr_words, n = 300)
 
+book_2_count  <-  book_2 %>% 
+  count(word, sort = TRUE, name = "nr_words") %>%  
+  slice_max(order_by = nr_words, n = 300)
+
+book_3_count  <-  book_3 %>% 
+  count(word, sort = TRUE, name = "nr_words") %>%  
+  slice_max(order_by = nr_words, n = 300)
+
+book_4_count  <-  book_4 %>% 
+  count(word, sort = TRUE, name = "nr_words") %>%  
+  slice_max(order_by = nr_words, n = 300)
+
+book_5_count  <-  book_5 %>% 
+  count(word, sort = TRUE, name = "nr_words") %>%  
+  slice_max(order_by = nr_words, n = 300)
+
+book_6_count  <-  book_6 %>% 
+  count(word, sort = TRUE, name = "nr_words") %>%  
+  slice_max(order_by = nr_words, n = 300)
+
+book_9_count  <-  book_9 %>% 
+  count(word, sort = TRUE, name = "nr_words") %>%  
+  slice_max(order_by = nr_words, n = 300)
+rm(book_1, book_2, book_3, book_4, book_5, book_6, book_9)
+#####################################################################
+#load("wordcloud_categories.RData")
+####################################################################
+save(book_all_count, book_1_count, book_2_count, book_3_count, book_4_count, 
+     book_5_count, book_6_count, book_9_count, 
+     file = "wordcloud_categories_count.RData")
+#####################################################################
+#load
+load("wordcloud_categories_count.RData")
 #####################################################################
 library(wordcloud)
 library(tm)
 #make wordcloud from data
 # category 1
-book_1 %>% 
-  count(word, sort = TRUE, name = "nr_words") %>% 
-  slice_max(order_by = nr_words, n = 40) %>% 
-  {wordcloud(.$word, .$nr_words, )}
+book_1_count %>% {wordcloud(.$word, .$nr_words, max.words = 50)}

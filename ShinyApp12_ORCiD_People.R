@@ -442,20 +442,28 @@ tab1 <- tabPanel("Correlation of variables",
 # ui definition for SECOND module
 # i.e., mapping the funding onto Sweden
 tab2 <- tabPanel("Geography",
-                 headerPanel("Map of Sweden: "),
-                 sliderInput("map_year_B",
-                             label = "Please select year to filter by: ",
-                             min = min(years),
-                             max = max(years),
-                             value = c(min(years), max(years)),
-                             sep = ""),
-                 actionButton("update_map", "Update map"),
-                 uiOutput("map_output_B", width="720px", height="1800px"),
-                 helpText(div(h5("Legend: "), "Swecris data is shown for Stockholms universitet, KTH, Kungliga tekniska högskolan, Karolinska Institutet, Handelshögskolan i Stockholm, Södertörns högskola, Uppsala universitet, Sveriges lantbruksuniversitet, Mälardalens högskola, Linköpings universitet, Högskolan i Jönköping, Linnéuniversitetet, Linnéuniversitetet, Högskolan i Kalmar, Uppsala universitet, Blekinge Tekniska Högskola, Lunds universitet, Malmö universitet, Högskolan i Halmstad, Göteborgs universitet, Chalmers tekniska högskola, Karlstads universitet, Örebro universitet, Mälardalens Högskola, Högskolan Dalarna, Högskolan i Gävle, Mittuniversitetet, Mittuniversitetet, Umeå universitet, Luleå Tekniska Universitet, and Umeå universitet.")),
-                 helpText(div(
-                   "The interactive map is adapted from ",
-                   tags$a("cartographyvectors.com/", href = "https://cartographyvectors.com/map/1680-sweden-counties")
-                 )))
+                 tabsetPanel(
+                   tabPanel("Map",
+                            headerPanel("Map of Sweden: "),
+                            sliderInput("map_year_B",
+                                        label = "Please select year to filter by: ",
+                                        min = min(years),
+                                        max = max(years),
+                                        value = c(min(years), max(years)),
+                                        sep = ""),
+                            actionButton("update_map", "Update map"),
+                            uiOutput("map_output_B", width="720px", height="1800px"),
+                            helpText(div(h5("Legend: "), "Swecris data is shown for Stockholms universitet, KTH, Kungliga tekniska högskolan, Karolinska Institutet, Handelshögskolan i Stockholm, Södertörns högskola, Uppsala universitet, Sveriges lantbruksuniversitet, Mälardalens högskola, Linköpings universitet, Högskolan i Jönköping, Linnéuniversitetet, Linnéuniversitetet, Högskolan i Kalmar, Uppsala universitet, Blekinge Tekniska Högskola, Lunds universitet, Malmö universitet, Högskolan i Halmstad, Göteborgs universitet, Chalmers tekniska högskola, Karlstads universitet, Örebro universitet, Mälardalens Högskola, Högskolan Dalarna, Högskolan i Gävle, Mittuniversitetet, Mittuniversitetet, Umeå universitet, Luleå Tekniska Universitet, and Umeå universitet.")),
+                            helpText(div(
+                              "The interactive map is adapted from ",
+                              tags$a("cartographyvectors.com/", href = "https://cartographyvectors.com/map/1680-sweden-counties")
+                            ))
+                   ),
+                   tabPanel("Table",
+                            helpText(div(h5("Universities and högskolor included in the map per Swedish län (i.e., administrative region)."))),
+                            tableOutput("table_output"))
+                 )
+)
 
 # ui definition for THIRD module
 # i.e., mapping the funding onto Sweden
@@ -528,9 +536,11 @@ shinyApp(
     
     ###### MODULE 2 [map]: ######
     
+    output$table_output <- renderTable(unnested_tibble_data)
+    
     # Define a reactive expression for updating the year range
     update_map_range <- reactive({
-      # Change when the "update" button is pressed...
+      # Change when the "update" button is pressed... 
       input$update_map
       # ...but not for anything else
       isolate({
@@ -682,3 +692,46 @@ shinyApp(
 ###### END ######
 
 
+# #frequency of projects by orcidId
+# data_filtered_orcid <- all_university_projects_people  %>% filter(!is.na(orcId))
+# project_counts_orcid <- sapply(unique(data_filtered_orcid$orcId), function(id) sum(data_filtered_orcid$orcId == id, na.rm = T))
+# freq_orcid <- table(project_counts_orcid)
+# freq_orcid <- data.frame(Projects = as.numeric(names(freq_orcid)), Frequency = as.numeric(freq_orcid))
+# 
+# ggplot(freq_orcid, aes(x = Projects, y = Frequency)) +
+#   geom_bar(stat = "identity", fill = "grey") +
+#   labs(x = "Number of Projects by orcid Id", y = "√Frequency") +
+#   theme_classic() +
+#   theme(axis.title.x = element_text(size = 12),
+#         axis.title.y = element_text(size = 12)) +
+#   scale_x_continuous(breaks = seq(0, max(freq_orcid$Projects), by = 20)) +
+#   scale_y_sqrt(breaks = pretty(range(freq_orcid$Frequency), n = 5), expand = c(0, 0))
+# #-------------------------------------------------
+# #top 10 scientists by orcid id
+# project_counts_orcid_df <- as.data.frame(project_counts_orcid)
+# project_counts_orcid_df_sort <- project_counts_orcid_df %>% arrange(desc(project_counts_orcid))
+# project_counts_orcid_df_sort$fullName <- data_filtered_orcid$fullName[match(rownames(project_counts_orcid_df_sort), data_filtered_orcid$orcId)]
+# 
+# top_10 <- head(project_counts_orcid_df_sort, 10)
+# top_10$fullName <- factor(top_10$fullName, levels = top_10$fullName)
+# ggplot(top_10, aes(x = fullName, y = project_counts_orcid)) +
+#   geom_bar(stat = "identity", fill = "grey") +
+#   labs(x = "Name of top 10 scientists", y = "√Frequency of projects") +
+#   theme_classic() +
+#   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+#   scale_y_continuous(expand = c(0, 0))
+# #-------------------------------------------------
+# #frequency of projects by name
+# data_filtered_name <- all_university_projects_people  %>% filter(!is.na(fullName))
+# project_counts_name <- sapply(unique(data_filtered_name$fullName), function(id) sum(data_filtered_name$fullName == id, na.rm = T))
+# freq_name <- table(project_counts_name)
+# freq_name <- data.frame(Projects = as.numeric(names(freq_name)), Frequency = as.numeric(freq_name))
+# 
+# ggplot(freq_name, aes(x = Projects, y = Frequency)) +
+#   geom_bar(stat = "identity", fill = "grey") +
+#   labs(x = "Number of Projects by name", y = "√Frequency") +
+#   theme_classic() +
+#   theme(axis.title.x = element_text(size = 12),
+#         axis.title.y = element_text(size = 12)) +
+#   scale_x_continuous(breaks = seq(0, max(freq_name$Projects), by = 20)) +
+#   scale_y_sqrt(breaks = pretty(range(freq_name$Frequency), n = 5), expand = c(0, 0))

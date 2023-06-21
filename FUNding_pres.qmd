@@ -1,0 +1,84 @@
+---
+title: "FUNding"
+author: "Muricio Roca, Axel Cedholm, Joel Hallgren, Jose A. L. V., Evelyn Halitzki, Mikael Brink"
+format: revealjs
+editor: visual
+---
+
+## Background
+
+The Swecris database enables you to search, compare and produce statistics for Swedish research projects.
+
+-   Information from several research funding bodies is gathered in one place.
+
+    <https://www.vr.se/english/swecris.html#/>
+
+## Retrieval of data
+
+We used the swecris library available at github, <https://github.com/KTH-Library/swecris> to download the data.
+
+```{r}
+#| label: load-packages
+#| echo: true
+#| eval: false
+ 
+#install
+install_github("KTH-Library/swecris", dependencies = T, force=T)
+#
+library(swecris)
+allfunding<-swecris::swecris_fundings()
+
+#I modified the following function from swecris, and removed the search string that specified KTH
+#kth_projects <- swecris_funding()
+
+swecris_all_university_projects <- function (searchstring = "", 
+                                             token) 
+{
+  if (missing(token)) 
+    token <- "RWNDZ3FDRVVSMmNUNlZkMkN3"
+  httr::GET("https://swecris-api.vr.se/v1/scp/export", query = list(`organizationType[]` = "Universitet", 
+                                                                    sortOrder = "desc", sortColumn = "FundingStartDate", 
+                                                                    searchText = URLencode(searchstring), token = token)) %>% 
+    httr::content(as = "text", encoding = "UTF-8") %>% readr::read_delim(delim = ";", 
+                                                                         quote = "\"", show_col_types = FALSE)
+}
+#get the data to an object
+all_university_projects <- swecris_all_university_projects()
+
+```
+
+## Background cont.
+
+```{r, echo=F}
+library(tidyverse)
+library(gt)
+all_university_projects <- readRDS("all_university_projects.RDS")
+```
+
+The downloaded data contains these headers, and contains
+
+-   There are **`r nrow(all_university_projects)`** projects in our data.
+-   There are **`r all_university_projects %>% distinct(FundingOrganisationNameEn) %>% count()`** unique funding organizations
+-   There are **`r all_university_projects %>% distinct(CoordinatingOrganisationNameEn) %>% count()`** unique coordinating organizations
+-   The database also contained an abstract for each project.
+
+```{r}
+
+all_university_projects %>% colnames()
+```
+
+## Aim
+
+-   Rshiny- app to display and interactively change
+
+    -   **Descriptive data**
+
+    -   A **map** displaying the geographical distribution of funds in Sweden for Universities.
+
+    -   **Word cloud** displaying the most prevalent words for the respective research field
+
+    -   Information related to the **Grant applicants**
+
+## Challenges
+
+-   Bla bla bla

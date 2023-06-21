@@ -1,6 +1,6 @@
 ---
 title: "FUNding"
-author: "Muricio Roca, Axel Cedholm, XXXXXXX Mikael Brink"
+author: "Muricio Roca, Axel Cedholm, Joel Hallgren, Jose A. L. V., Evelyn Halitzki, Mikael Brink"
 format: revealjs
 editor: visual
 ---
@@ -11,13 +11,11 @@ The Swecris database enables you to search, compare and produce statistics for S
 
 -   Information from several research funding bodies is gathered in one place.
 
--   
-
     <https://www.vr.se/english/swecris.html#/>
 
 ## Retrieval of data
 
-We used the swecris library available at github, <https://github.com/KTH-Library/swecris>.
+We used the swecris library available at github, <https://github.com/KTH-Library/swecris> to download the data.
 
 ```{r}
 #| label: load-packages
@@ -44,16 +42,43 @@ swecris_all_university_projects <- function (searchstring = "",
     httr::content(as = "text", encoding = "UTF-8") %>% readr::read_delim(delim = ";", 
                                                                          quote = "\"", show_col_types = FALSE)
 }
+#get the data to an object
+all_university_projects <- swecris_all_university_projects()
+
 ```
 
-##  Background cont.
+## Background cont.
 
-The
+```{r, echo=F}
+library(tidyverse)
+library(gt)
+all_university_projects <- readRDS("all_university_projects.RDS")
+```
 
-## Code
+The downloaded data contains these headers, and contains
 
-When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
+-   There are **`r nrow(all_university_projects)`** projects in our data.
+-   There are **`r all_university_projects %>% distinct(FundingOrganisationNameEn) %>% count()`** unique funding organizations
+-   There are **`r all_university_projects %>% distinct(CoordinatingOrganisationNameEn) %>% count()`** unique coordinating organizations
+-   The database also contained an abstract for each project.
 
 ```{r}
-1 + 1
+
+all_university_projects %>% colnames()
 ```
+
+## Aim
+
+-   Rshiny- app to display and interactively change
+
+    -   **Descriptive data**
+
+    -   A **map** displaying the geographical distribution of funds in Sweden for Universities.
+
+    -   **Word cloud** displaying the most prevalent words for the respective research field
+
+    -   Information related to the **Grant applicants**
+
+## Challenges
+
+-   Bla bla bla

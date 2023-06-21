@@ -36,7 +36,7 @@ plot_variable <- function(data, variable) {
     df %>% ggplot(aes(x = {{ variable }}, y = Total_funding)) +
       geom_line(aes(col = "blue")) +
       geom_point() +
-      ggtitle("Sweden Research Funding by Year") +
+      ggtitle("Sweden Research Funding per Year") +
       scale_x_continuous(name = "Year",
                          breaks = seq(from = min(df$FundingYear), to = max(df$FundingYear), by = 2)) +
       scale_y_continuous(name = "Total Funding (billion SEK)",
@@ -66,7 +66,7 @@ plot_variable <- function(data, variable) {
     df %>% ggplot(aes(x = FundingYear, y = Total_funding, fill = {{ variable }}, col = {{ variable }})) +
       geom_line() +
       geom_point() +
-      labs(title ="Sweden Research Funding by Year",
+      labs(title ="Sweden Research Funding per Year",
            subtitle = legend_name) +
       scale_x_continuous(name = "Year",
                          breaks = seq(from = min(df$FundingYear), to = max(df$FundingYear), by = 2)) +
@@ -83,8 +83,9 @@ plot_variable <- function(data, variable) {
                          },
                          labels = function(x) paste0(x / 1000000000)) +
       theme_bw()+ scale_colour_hc() +
-      theme(legend.position = "bottom",
-            legend.title = element_blank())
+      theme(legend.position = "right",
+            legend.title = element_blank()
+            )
     
   }
 }

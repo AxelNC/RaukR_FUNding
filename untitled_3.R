@@ -6,8 +6,6 @@ library(leaflet.extras) # remotes::install_github("bhaskarvk/leaflet.extras")
 library(sf)
 library(htmlwidgets)
 
-map_data <- map_ln
-
 ################################################################################
 # new polygons per county
 carto_vectors_sweden <- st_read("sweden-counties_1680.geojson")
@@ -29,14 +27,6 @@ yearly_2008_county <- university_yearly_sek_data %>%
     yearly_funding_sek_county = sum(yearly_funding_sek)
   ) %>% arrange(yearly_funding_sek_county)
 
-# Define the color palette
-color_palette <- colorRampPalette(c("grey", "black"))
-
-# Generate the gradient color scale
-gradient_colors <- color_palette(length(yearly_2008_county$yearly_funding_sek_county))
-
-yearly_2008_county <- add_column(yearly_2008_county, color = gradient_colors)
-
 # Another color palette
 pal <- colorNumeric("viridis", NULL)
 
@@ -52,11 +42,8 @@ sf_vectors$County <- v_sf
 #now join
 sf_vectors <- left_join(sf_vectors, 
                         data.frame(County = yearly_2008_county$County,
-                                   color = yearly_2008_county$color,
                                    funding = yearly_2008_county$yearly_funding_sek_county),
-                        by = 'County') %>% 
-  mutate(color = if_else(is.na(color), '#BEBEBE', color)) #%>%
-  #mutate(funding = if_else(is.na(funding), 0, funding))
+                        by = 'County')  
 
 
 # Add the polygons to the Leaflet map
@@ -73,14 +60,15 @@ centroids <- st_centroid(sf_vectors)
 
 # Convert the centroids to a data frame
 centroids_df <- st_coordinates(centroids) %>%
-  as.data.frame() %>% add_column(County = sf_vectors$County)
+  as.data.frame() %>% add_column(label = paste("County:", sf_vectors$County, "<br>",
+                                               "Funding:", sf_vectors$funding, "<br>"))
 
 # Add labels to the polygons
 map <- map %>%
   addLabelOnlyMarkers(data = centroids_df,
                       lat = ~Y,  # column containing the latitude coordinates
                       lng = ~X,  # column containing the longitude coordinates
-                      label = ~County,  # column containing the names
+                      label = ~label,  # column containing the names
                       labelOptions = labelOptions(
                         noHide = TRUE,  # show labels by default
                         direction = "auto",

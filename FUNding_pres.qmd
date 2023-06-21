@@ -1,6 +1,6 @@
 ---
 title: "FUNding"
-author: "Muricio Roca, Axel Cedholm, Joel Hallgren, Jose A. L. V., Evelyn Halitzki, Mikael Brink"
+author: "Mauricio Roza, Axel Cedholm, Joel Hallgren, Jose A. L. V., Evelyn Halitzki, Mikael Brink"
 format: revealjs
 menu:
   slide-number: true
@@ -70,25 +70,13 @@ The downloaded data contains these headers, and contains
 all_university_projects %>% colnames()
 ```
 
-## Aim
+## ERC
 
--   Rshiny- app to display and interactively change
+-   Erc have tried something similar: <https://erc.europa.eu/projects-figures/project-database>
 
-    -   **Descriptive data**
+    ![](erc_screenshot.png){width="500"}
 
-    -   A **map** displaying the geographical distribution of funds in Sweden for Universities.
-
-    -   **Word cloud** displaying the most prevalent words for the respective research field
-
-    -   Information related to the **Grant applicants**
-
-<<<<<<< HEAD
 ## Wordcloud process {.smaller}
-=======
-    -   Erc have tried something similar: https://erc.europa.eu/projects-figures/project-database
-
-## Wordcloud process
->>>>>>> 431ace2f4981d131919d25f6880e189b4e8af93a
 
 ::: columns
 ::: {.column width="60%"}
@@ -148,11 +136,12 @@ All abstracts ( **`r all_university_projects %>% filter(!is.na(ProjectAbstractEn
 
 ## Map
 
-the library(leaflet) was used to plot the map.
+the `library(leaflet)` was used to plot the map.
 
 ## Challenges
 
 -   Rshiny implementation
--   
 
-## Thank you RaukR!
+# **Thank you RaukR**
+
+![](group_pic.jpg){fig-align="center"}

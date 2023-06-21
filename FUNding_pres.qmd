@@ -1,0 +1,59 @@
+---
+title: "FUNding"
+author: "Muricio Roca, Axel Cedholm, XXXXXXX Mikael Brink"
+format: revealjs
+editor: visual
+---
+
+## Background
+
+The Swecris database enables you to search, compare and produce statistics for Swedish research projects.
+
+-   Information from several research funding bodies is gathered in one place.
+
+-   
+
+    <https://www.vr.se/english/swecris.html#/>
+
+## Retrieval of data
+
+We used the swecris library available at github, <https://github.com/KTH-Library/swecris>.
+
+```{r}
+#| label: load-packages
+#| echo: true
+#| eval: false
+ 
+#install
+install_github("KTH-Library/swecris", dependencies = T, force=T)
+#
+library(swecris)
+allfunding<-swecris::swecris_fundings()
+
+#I modified the following function from swecris, and removed the search string that specified KTH
+#kth_projects <- swecris_funding()
+
+swecris_all_university_projects <- function (searchstring = "", 
+                                             token) 
+{
+  if (missing(token)) 
+    token <- "RWNDZ3FDRVVSMmNUNlZkMkN3"
+  httr::GET("https://swecris-api.vr.se/v1/scp/export", query = list(`organizationType[]` = "Universitet", 
+                                                                    sortOrder = "desc", sortColumn = "FundingStartDate", 
+                                                                    searchText = URLencode(searchstring), token = token)) %>% 
+    httr::content(as = "text", encoding = "UTF-8") %>% readr::read_delim(delim = ";", 
+                                                                         quote = "\"", show_col_types = FALSE)
+}
+```
+
+##  Background cont.
+
+The
+
+## Code
+
+When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```

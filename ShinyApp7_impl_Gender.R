@@ -10,10 +10,14 @@
 # library(wordcloud)
 # library(memoise)
 # library(ggthemes)
+# library(scales)
 
 ###### Load in the necessary raw data: ######
 
+###===
 ### TO LOAD RAW DATA FROM FILES, UNCOMMENT THE FOLLOWING CODE:
+###===
+
 ### Main dataset
 # all_university_projects <- read_csv("all_university_projects.csv")
 
@@ -27,7 +31,6 @@
 # parsed_people <- read_csv2("involved_people_projID.csv")
 
 ###### END ######
-
 
 
 ######## Functions ######
@@ -155,6 +158,13 @@ for (kn in unique(x$knkod)) {
 # To plot: call 
 # m
 
+
+# Function used to couple user input into the word cloud call
+plot_selector <- function(selection) {
+  variable_name <- paste0("book_", selection, "_count")
+  variable_name
+}
+
 ####### END #######
 
 
@@ -221,7 +231,7 @@ scbcat_df<- scbs.codes %>%
 book_selection <- as.vector(scbcat_df[2]) %>% unname() %>% unlist()
 book_selection <- c("All fields", book_selection)
 list_of_fields <- c("all","1","2","3","4","5","6","9")
-
+names(list_of_fields) <- book_selection
 
 
 # Generation of funding by gender dataset, From Evelyn 2023-06-21 09:26
@@ -277,51 +287,22 @@ tab2 <- tabPanel("Geography",
                              value = c(min(years), max(years))),
                  uiOutput("map_output", width="720px"))
 
-# TESTINT TESTING ui definition for THIRD module TESTING TESTING
-# i.e., mapping the funding onto Sweden
-tab3 <- tabPanel("Analysis of abstracts",
-                 titlePanel("Word Cloud"),
-                 
-                 sidebarLayout(
-                   # Sidebar with a slider and selection inputs
-                   sidebarPanel(
-                     selectInput("selection", "Choose a book:",
-                                 choices = books),
-                     actionButton("update", "Change"),
-                     hr(),
-                     sliderInput("freq",
-                                 "Minimum Frequency:",
-                                 min = 1,  max = 50, value = 15),
-                     sliderInput("max",
-                                 "Maximum Number of Words:",
-                                 min = 1,  max = 300,  value = 100)
-                   ),
-                   
-                   # Show Word Cloud
-                   mainPanel(
-                     plotOutput("wordcloud_plot_output",
-                                height = "500px")
-                   )
-                 ))
-
 # ui definition for THIRD module
 # i.e., mapping the funding onto Sweden
-tab4 <- tabPanel("Analysis of abstracts",
-                 titlePanel("Word Cloud Mikael"),
+tab3 <- tabPanel("Analysis of abstracts",
+                 titlePanel("Most frequent words used in English abstracts"),
                  
                  sidebarLayout(
                    # Sidebar with a slider and selection inputs
                    sidebarPanel(
                      selectInput("selection_abstract_wordcount",
-                                 label = "Choose a SCBS code: ",
-                                 choices = book_selection),
-                     selectInput("selection_mikael", "Choose a book:",
-                                 choices = books),
+                                 label = "Choose a research field: ",
+                                 choices = list_of_fields),
                      actionButton("update_mikael", "Change"),
                      hr(),
-                     sliderInput("freq_mikael",
-                                 "Minimum Frequency:",
-                                 min = 1,  max = 50, value = 15),
+                     # sliderInput("freq_mikael",
+                     #             "Minimum Frequency:",
+                     #             min = 1,  max = 50, value = 15),
                      sliderInput("max_mikael",
                                  "Maximum Number of Words:",
                                  min = 1,  max = 300,  value = 100)
@@ -329,10 +310,27 @@ tab4 <- tabPanel("Analysis of abstracts",
                    
                    # Show Word Cloud
                    mainPanel(
-                     plotOutput("wordcloud_plot_output_mikael",
-                                height = "500px")
+                     plotOutput("wordcloud_plot_test",
+                                height = "500px"),
+                     helpText(div("Wordcloud adapted from: ", tags$a("https://shiny.posit.co/r/gallery", href = "https://shiny.posit.co/r/gallery/start-simple/word-cloud/")))
                    )
+                   # helpText("Footer")
                  ))
+
+# ui definition for FIFTH module
+# i.e., funding by gender
+tab5 <- tabPanel("Grant applicants",
+                 tabsetPanel(
+                   tabPanel("Option 1",
+                            sidebarPanel(
+                              helpText("This is some text.")
+                            ),
+                            mainPanel(
+                              plotOutput("gender_plot_year")
+                            )),
+                   tabPanel("Option2")
+                   )
+                 )
 
 ####### END #######
 
@@ -343,8 +341,7 @@ shinyApp(
                 tab1,
                 tab2,
                 tab3,
-                tab4,
-                tabPanel("Grant applicants")
+                tab5
     ),
   
   
@@ -364,41 +361,17 @@ shinyApp(
     output$map_output <- renderUI(m)
     ###### END ######
     
-    ####### MODULE 3 [wordcloud]: ######
-    # Define a reactive expression for the document term matrix
-    terms <- reactive({
-      # Change when the "update" button is pressed...
-      input$update
-      # ...but not for anything else
-      isolate({
-        withProgress({
-          setProgress(message = "Processing corpus...")
-          getTermMatrix(input$selection)
-        })
-      })
-    })
-    
-    # Make the wordcloud drawing predictable during a session
-    wordcloud_rep <- repeatable(wordcloud)
-    
-    output$wordcloud_plot_output <- renderPlot({
-      v <- terms()
-      wordcloud_rep(names(v), v, scale=c(4,0.5),
-                    min.freq = input$freq, max.words=input$max,
-                    colors=brewer.pal(8, "Dark2"))
-    })
-    ###### END ######
     
     ####### MODULE 4 [wordcloud MIKAEL]: ######
     # Define a reactive expression for the document term matrix
-    terms2 <- reactive({
+    terms3 <- reactive({
       # Change when the "update" button is pressed...
       input$update_mikael
       # ...but not for anything else
       isolate({
         withProgress({
           setProgress(message = "Processing corpus...")
-          getTermMatrix(input$selection_mikael)
+          plot_selector(input$selection_abstract_wordcount)
         })
       })
     })
@@ -406,29 +379,52 @@ shinyApp(
     # Make the wordcloud drawing predictable during a session
     wordcloud_rep <- repeatable(wordcloud)
     
-    output$wordcloud_plot_output_mikael <- renderPlot({
-      v2 <- terms2()
-      wordcloud_rep(names(v2), v2, scale=c(4,0.5),
-                    min.freq = input$freq_mikael, max.words=input$max_mikael,
-                    colors=brewer.pal(8, "Dark2"))
+    # Render the plot
+    output$wordcloud_plot_test <- renderPlot({
+      
+      v3 <- terms3()
+      
+      eval(as.name(v3)) %>% 
+        {wordcloud_rep(.$word, 
+                       .$nr_words, 
+                       scale = c(4,0.5),
+                       # min.freq = input$freq_mikael,
+                       max.words = input$max_mikael,
+                       colors=brewer.pal(8, "Dark2"))}
+    })
+                    
+    
+    ###### END ######
+    
+    ###### MODULE 5 [gender ratio] #####
+    output$gender_plot_year <- renderPlot({
+      ggplot(all_university_projects_people, aes(x = factor(FundingYear), y = FundingsSek, fill = gender)) +
+        geom_boxplot() +
+        labs(x = "Year", y = "Funding (SEK)", fill = "Gender") +
+        scale_y_continuous(limits = c(min_funding, max_funding), labels = scales::comma) +
+        facet_grid(. ~ FundingYear, scales = "free_x", space = "free", switch = "y") +
+        theme_classic() +
+        theme(strip.text = element_blank()) +
+        scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"))
     })
     ###### END ######
+    
     
   })
 ###### END ######
 
+list_of_fields
 
-library(ggplot2)
-library(scales)
-library(dplyr)
-
+selection <- list_of_fields[2]
 
 
-ggplot(all_university_projects_people, aes(x = factor(FundingYear), y = FundingsSek, fill = gender)) +
-  geom_boxplot() +
-  labs(x = "Year", y = "Funding (SEK)", fill = "Gender") +
-  scale_y_continuous(limits = c(min_funding, max_funding), labels = scales::comma) +
-  facet_grid(. ~ FundingYear, scales = "free_x", space = "free", switch = "y") +
-  theme_classic() +
-  theme(strip.text = element_blank()) +
-  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"))
+
+if(selection == "1") {
+  print("yes")
+}
+
+selection <- plot_selector(list_of_fields[1])
+
+eval(as.name(selection)) %>% {wordcloud(.$word, .$nr_words, max.words = 50)}
+
+

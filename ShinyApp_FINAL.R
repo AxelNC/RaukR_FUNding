@@ -15,6 +15,8 @@
 # library(sf)
 # library(htmlwidgets)
 
+
+
 ###### Load in the necessary raw data: ######
 
 ###===
@@ -26,16 +28,24 @@
 ### Mikael's abstract word counts
 ### People dataset
 
-# all_university_projects <- read_csv("all_university_projects.csv")
-# scbs.codes <- read_csv2("scbs_codes_projID.csv")
-# load("wordcloud_categories_count.RData")
-# parsed_people <- read_csv2("involved_people_projID.csv")
+all_university_projects <- read_csv("all_university_projects.csv")
+scbs.codes <- read_csv2("scbs_codes_projID.csv")
+load("wordcloud_categories_count.RData")
+parsed_people <- read_csv2("involved_people_projID.csv")
 
 ###### END ######
+
+
 
 ###### Pre-calculate this ######
 ### Generation of frequencies of people being part of projects
 # Added 2023-06-21 16:15
+# # Generation of funding by gender dataset, From Evelyn 2023-06-21 09:26
+# all_university_projects_people <- merge(all_university_projects, parsed_people, by="ProjectId")
+# all_university_projects_people <- all_university_projects_people[all_university_projects_people$FundingYear %in% c("2020","2021","2022","2023"), ]
+# all_university_projects_people_mean <- aggregate(FundingsSek ~ FundingYear + gender, data = all_university_projects_people, FUN = mean)
+# min_funding <- min(all_university_projects_people_mean$FundingsSek)
+# max_funding <- max(all_university_projects_people_mean$FundingsSek)
 # #frequency of projects by orcidId
 # data_filtered_orcid <- all_university_projects_people  %>% filter(!is.na(orcId))
 # project_counts_orcid <- sapply(unique(data_filtered_orcid$orcId), function(id) sum(data_filtered_orcid$orcId == id, na.rm = T))
@@ -65,82 +75,9 @@
 # top_10_name$fullName <- factor(top_10_name$fullName, levels = top_10_name$fullName)
 ###### END ######
 
+
+
 ######## Functions ######
-# #==== Function from Mauricio 2023-06-20 18:20
-# plot_variable <- function(data, variable) {
-#   variable_name <- data %>% select({{ variable }}) %>% colnames()
-# 
-#   if (variable_name == "FundingYear") {
-#     df <- data %>%
-#       group_by({{ variable }}) %>%
-#       summarise(Total_funding = sum(FundingsSek))
-# 
-#     df %>% ggplot(aes(x = {{ variable }}, y = Total_funding)) +
-#       geom_line(aes(col = "blue")) +
-#       geom_point() +
-#       ggtitle("Sweden Research Funding by Year") +
-#       scale_x_continuous(name = "Year",
-#                          breaks = seq(from = min(df$FundingYear), to = max(df$FundingYear), by = 2)) +
-#       scale_y_continuous(name = "Total Funding (billion SEK)",
-#                          breaks = seq(from = 0, to = max(df$Total_funding)*1.1, by = 2000000000),
-#                          labels = function(x) paste0(x / 1000000000)) +
-#       theme_hc() + scale_colour_hc() +
-#       theme(legend.position = "none")
-#   }
-# 
-#   else {
-# 
-#     top_5 <- data %>%
-#       group_by({{ variable }}) %>%
-#       summarise(Total_funding = sum(FundingsSek)) %>%
-#       arrange(desc(Total_funding)) %>%
-#       top_n(5, Total_funding) %>%
-#       select({{ variable }})
-# 
-#     top_5 <- as.vector(top_5[[1]])
-# 
-#     df <- data %>%
-#       group_by(FundingYear, {{ variable }}) %>%
-#       summarise(Total_funding = sum(FundingsSek)) %>%
-#       arrange(desc(Total_funding)) %>%
-#       filter({{ variable }} %in% top_5)
-# 
-#     df %>% ggplot(aes(x = FundingYear, y = Total_funding, fill = {{ variable }}, col = {{ variable }})) +
-#       geom_line() +
-#       geom_point() +
-#       ggtitle("Sweden Research Funding by Year") +
-#       scale_x_continuous(name = "Year",
-#                          breaks = seq(from = min(df$FundingYear), to = max(df$FundingYear), by = 2)) +
-#       scale_y_continuous(name = "Total Funding (billion SEK)",
-#                          breaks =
-#                            if (max(df$Total_funding) < 5000000000) {
-#                              seq(from = 0, to = max(df$Total_funding)*1.1, by = 500000000)
-#                            }
-#                          else if (max(df$Total_funding) > 9000000000) {
-#                            seq(from = 0, to = max(df$Total_funding)*1.1, by = 2000000000)
-#                          }
-#                          else {
-#                            seq(from = 0, to = max(df$Total_funding)*1.1, by = 1000000000)
-#                          },
-#                          labels = function(x) paste0(x / 1000000000)) +
-#       theme_hc()+ scale_colour_hc() +
-#       theme(legend.position = "bottom",
-#             legend.title = element_blank())
-# 
-#   }
-# }
-# 
-# #example of implementation
-# # projdata = all_university_projects
-# 
-# # plot_variable(projdata, CoordinatingOrganisationTypeOfOrganisationEn)
-# # plot_variable(projdata, CoordinatingOrganisationNameEn)
-# # plot_variable(projdata, FundingOrganisationNameEn)
-# # plot_variable(projdata, TypeOfAwardDescrEn)
-# # plot_variable(projdata, FundingYear)
-
-
-
 # Function retrieved from Mauricio at 2023-06-21 14:36
 plot_variable <- function(data, variable) {
   variable_name <- data %>% select({{ variable }}) %>% colnames()
@@ -276,12 +213,7 @@ list_of_fields <- c("all","1","2","3","4","5","6","9")
 names(list_of_fields) <- book_selection
 
 ### Generation of dataset and variables for MODULE 4 [gender]
-# Generation of funding by gender dataset, From Evelyn 2023-06-21 09:26
-all_university_projects_people <- merge(all_university_projects, parsed_people, by="ProjectId")
-all_university_projects_people <- all_university_projects_people[all_university_projects_people$FundingYear %in% c("2020","2021","2022","2023"), ]
-all_university_projects_people_mean <- aggregate(FundingsSek ~ FundingYear + gender, data = all_university_projects_people, FUN = mean)
-min_funding <- min(all_university_projects_people_mean$FundingsSek)
-max_funding <- max(all_university_projects_people_mean$FundingsSek)
+
 # Selection of plots
 gender_plot_list <- c("plot1", "plot2", "plot3", "plot4", "plot5", "plot6")
 names(gender_plot_list) <- c("Average funding per gender", 
@@ -378,8 +310,6 @@ lan_data <- list(
 #### get/summarize yearly funding per university and keep county code
 #### Get the listed data to a tibble with a row per university, maintaining the county and county code.
 
-library(tidyverse)
-
 tibble_data <- enframe(lan_data, name = "County", value = "University")
 
 print(tibble_data)
@@ -461,7 +391,7 @@ sf_vectors$County <- v_sf
 ####### Definition of UI elements #######
 # ui definition for FIRST module
 # i.e., correlation of funds with various data
-tab1 <- tabPanel("Correlation of variables",
+tab1 <- tabPanel("Data exploration",
                  sidebarPanel(
                    selectInput("select_input_x",
                                label = "Please select your x axis variable",
@@ -476,7 +406,7 @@ tab1 <- tabPanel("Correlation of variables",
 
 # ui definition for SECOND module
 # i.e., mapping the funding onto Sweden
-tab2 <- tabPanel("Geography",
+tab4 <- tabPanel("Geography",
                  tabsetPanel(
                    tabPanel("Map",
                             headerPanel("Map of Sweden: "),
@@ -529,7 +459,7 @@ tab3 <- tabPanel("Analysis of abstracts",
 
 # ui definition for FOURTH module
 # i.e., funding by gender
-tab4 <- tabPanel("Grant applicants",
+tab2 <- tabPanel("Grant applicants",
                  sidebarLayout(
                    sidebarPanel(
                      selectInput("gender_input_selection",
@@ -562,7 +492,7 @@ shinyApp(
       plot_variable(small_dataset, !!sym(input$select_input_x)) + theme(
         axis.title = element_text(size = 16),
         axis.text = element_text(size = 14),
-        legend.text = element_text(size = 16),
+        legend.text = element_text(size = 12),
         title = element_text(size = 18)
       )
       })

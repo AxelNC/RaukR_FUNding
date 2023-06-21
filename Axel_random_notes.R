@@ -175,3 +175,10 @@ lan_data <- list(
   )
 )
 
+
+
+#text_for_map
+unnested_tibble_data$University
+paste0(unnested_tibble_data$University)
+paste(as.character(unnested_tibble_data$University[1:29]), sep="' '", collapse=", ")
+

@@ -82,6 +82,8 @@ all_university_projects %>% colnames()
 
     -   Information related to the **Grant applicants**
 
+    -   Erc have tried something similar: https://erc.europa.eu/projects-figures/project-database
+
 ## Wordcloud process
 
 ::: columns

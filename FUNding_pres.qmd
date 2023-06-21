@@ -2,6 +2,9 @@
 title: "FUNding"
 author: "Muricio Roca, Axel Cedholm, Joel Hallgren, Jose A. L. V., Evelyn Halitzki, Mikael Brink"
 format: revealjs
+menu:
+  side: right
+  width: wide
 editor: visual
 ---
 
@@ -58,9 +61,9 @@ all_university_projects <- readRDS("all_university_projects.RDS")
 The downloaded data contains these headers, and contains
 
 -   There are **`r nrow(all_university_projects)`** projects in our data.
--   There are **`r all_university_projects %>% distinct(FundingOrganisationNameEn) %>% count()`** unique funding organizations
--   There are **`r all_university_projects %>% distinct(CoordinatingOrganisationNameEn) %>% count()`** unique coordinating organizations
--   The database also contained an abstract for each project.
+-   **`r all_university_projects %>% distinct(FundingOrganisationNameEn) %>% count()`** unique funding organizations
+-   **`r all_university_projects %>% distinct(CoordinatingOrganisationNameEn) %>% count()`** unique coordinating organizations
+-   The database also contained one abstract for each project.
 
 ```{r}
 
@@ -79,6 +82,65 @@ all_university_projects %>% colnames()
 
     -   Information related to the **Grant applicants**
 
+## Wordcloud process
+
+::: columns
+::: {.column width="60%"}
+```{r word process}
+#| label: word processing
+#| echo: true
+#| eval: false
+#add filtered column for the second column
+scbs.codes.mini <- scbs.codes %>% filter(scb_code <10)
+#nest by people
+proj_nest1<- nest_join(x = all_university_projects, y = involved.people, by = "ProjectId")
+#add nest by scbcodes (reduced to codes <10)
+proj_nest2 <- nest_join(x = proj_nest1, y = scbs.codes.mini, by = "ProjectId")
+#view data
+proj_nest2 %>% glimpse()
+#make a tibble with fewer cols
+proj_nest2.small<- proj_nest2 %>% select(ProjectId,
+                                         ProjectAbstractEn,
+                                         CoordinatingOrganisationNameEn, 
+                                         FundingsSek,
+                                         FundingYear,
+                                         CoordinatingOrganisationTypeOfOrganisationEn,
+                                         FundingOrganisationTypeOfOrganisationEn,
+                                         involved.people, 
+                                         scbs.codes.mini)
+
+
+#make a row of each word for each abstract
+tokenized <- proj_nest2.small %>% unnest_tokens(word, 
+                                                input = ProjectAbstractEn, 
+                                                to_lower = T)
+#delete so called stop-words
+token_wo_stopwords <- tokenized %>% anti_join(stop_words)
+
+library(wordcloud)
+library(tm)
+#make wordcloud from data
+# category 1
+token_wo_stopwords %>% 
+  count(word, sort = TRUE, name = "nr_words") %>%  
+  slice_max(order_by = nr_words, n = 300) %>% {wordcloud(.$word, .$nr_words)}
+```
+:::
+
+::: {.column width="40%"}
+All abstracts ( **`r all_university_projects %>% filter(!is.na(ProjectAbstractEn)) %>% count()`** ) were:
+
+-   tokenized using tidytext() package, set to lowercase.
+
+-   Stopwords (e.g. if, or, but, also) removed by tidytext::anti_join(stop_words)
+
+-   Word counted by base::count
+
+-   Wordcloud produced using
+:::
+:::
+
 ## Challenges
 
--   Bla bla bla
+-   Rshiny implementation
+-   

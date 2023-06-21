@@ -37,14 +37,102 @@
 
 ######## Functions ######
 # #==== Function from Mauricio 2023-06-20 18:20
+# plot_variable <- function(data, variable) {
+#   variable_name <- data %>% select({{ variable }}) %>% colnames()
+# 
+#   if (variable_name == "FundingYear") {
+#     df <- data %>%
+#       group_by({{ variable }}) %>%
+#       summarise(Total_funding = sum(FundingsSek))
+# 
+#     df %>% ggplot(aes(x = {{ variable }}, y = Total_funding)) +
+#       geom_line(aes(col = "blue")) +
+#       geom_point() +
+#       ggtitle("Sweden Research Funding by Year") +
+#       scale_x_continuous(name = "Year",
+#                          breaks = seq(from = min(df$FundingYear), to = max(df$FundingYear), by = 2)) +
+#       scale_y_continuous(name = "Total Funding (billion SEK)",
+#                          breaks = seq(from = 0, to = max(df$Total_funding)*1.1, by = 2000000000),
+#                          labels = function(x) paste0(x / 1000000000)) +
+#       theme_hc() + scale_colour_hc() +
+#       theme(legend.position = "none")
+#   }
+# 
+#   else {
+# 
+#     top_5 <- data %>%
+#       group_by({{ variable }}) %>%
+#       summarise(Total_funding = sum(FundingsSek)) %>%
+#       arrange(desc(Total_funding)) %>%
+#       top_n(5, Total_funding) %>%
+#       select({{ variable }})
+# 
+#     top_5 <- as.vector(top_5[[1]])
+# 
+#     df <- data %>%
+#       group_by(FundingYear, {{ variable }}) %>%
+#       summarise(Total_funding = sum(FundingsSek)) %>%
+#       arrange(desc(Total_funding)) %>%
+#       filter({{ variable }} %in% top_5)
+# 
+#     df %>% ggplot(aes(x = FundingYear, y = Total_funding, fill = {{ variable }}, col = {{ variable }})) +
+#       geom_line() +
+#       geom_point() +
+#       ggtitle("Sweden Research Funding by Year") +
+#       scale_x_continuous(name = "Year",
+#                          breaks = seq(from = min(df$FundingYear), to = max(df$FundingYear), by = 2)) +
+#       scale_y_continuous(name = "Total Funding (billion SEK)",
+#                          breaks =
+#                            if (max(df$Total_funding) < 5000000000) {
+#                              seq(from = 0, to = max(df$Total_funding)*1.1, by = 500000000)
+#                            }
+#                          else if (max(df$Total_funding) > 9000000000) {
+#                            seq(from = 0, to = max(df$Total_funding)*1.1, by = 2000000000)
+#                          }
+#                          else {
+#                            seq(from = 0, to = max(df$Total_funding)*1.1, by = 1000000000)
+#                          },
+#                          labels = function(x) paste0(x / 1000000000)) +
+#       theme_hc()+ scale_colour_hc() +
+#       theme(legend.position = "bottom",
+#             legend.title = element_blank())
+# 
+#   }
+# }
+# 
+# #example of implementation
+# # projdata = all_university_projects
+# 
+# # plot_variable(projdata, CoordinatingOrganisationTypeOfOrganisationEn)
+# # plot_variable(projdata, CoordinatingOrganisationNameEn)
+# # plot_variable(projdata, FundingOrganisationNameEn)
+# # plot_variable(projdata, TypeOfAwardDescrEn)
+# # plot_variable(projdata, FundingYear)
+
+
+
+# Function retrieved from Mauricio at 2023-06-21 14:36
 plot_variable <- function(data, variable) {
   variable_name <- data %>% select({{ variable }}) %>% colnames()
-
+  
+  if (variable_name == "CoordinatingOrganisationNameEn") {
+    legend_name <- "Top 5 Universities"
+  }
+  else if (variable_name == "CoordinatingOrganisationTypeOfOrganisationEn") {
+    legend_name <- "Type of Organization"
+  }
+  else if (variable_name == "FundingOrganisationNameEn") {
+    legend_name <- "Funding Organization"
+  }
+  else if (variable_name == "TypeOfAwardDescrEn") {
+    legend_name <- "Type of Award"
+  }
+  
   if (variable_name == "FundingYear") {
     df <- data %>%
       group_by({{ variable }}) %>%
       summarise(Total_funding = sum(FundingsSek))
-
+    
     df %>% ggplot(aes(x = {{ variable }}, y = Total_funding)) +
       geom_line(aes(col = "blue")) +
       geom_point() +
@@ -54,35 +142,36 @@ plot_variable <- function(data, variable) {
       scale_y_continuous(name = "Total Funding (billion SEK)",
                          breaks = seq(from = 0, to = max(df$Total_funding)*1.1, by = 2000000000),
                          labels = function(x) paste0(x / 1000000000)) +
-      theme_hc() + scale_colour_hc() +
+      theme_bw() + scale_colour_hc() +
       theme(legend.position = "none")
   }
-
+  
   else {
-
+    
     top_5 <- data %>%
       group_by({{ variable }}) %>%
       summarise(Total_funding = sum(FundingsSek)) %>%
       arrange(desc(Total_funding)) %>%
       top_n(5, Total_funding) %>%
       select({{ variable }})
-
+    
     top_5 <- as.vector(top_5[[1]])
-
+    
     df <- data %>%
       group_by(FundingYear, {{ variable }}) %>%
       summarise(Total_funding = sum(FundingsSek)) %>%
       arrange(desc(Total_funding)) %>%
       filter({{ variable }} %in% top_5)
-
+    
     df %>% ggplot(aes(x = FundingYear, y = Total_funding, fill = {{ variable }}, col = {{ variable }})) +
       geom_line() +
       geom_point() +
-      ggtitle("Sweden Research Funding by Year") +
+      labs(title ="Sweden Research Funding by Year",
+           subtitle = legend_name) +
       scale_x_continuous(name = "Year",
                          breaks = seq(from = min(df$FundingYear), to = max(df$FundingYear), by = 2)) +
       scale_y_continuous(name = "Total Funding (billion SEK)",
-                         breaks =
+                         breaks = 
                            if (max(df$Total_funding) < 5000000000) {
                              seq(from = 0, to = max(df$Total_funding)*1.1, by = 500000000)
                            }
@@ -93,21 +182,13 @@ plot_variable <- function(data, variable) {
                            seq(from = 0, to = max(df$Total_funding)*1.1, by = 1000000000)
                          },
                          labels = function(x) paste0(x / 1000000000)) +
-      theme_hc()+ scale_colour_hc() +
+      theme_bw()+ scale_colour_hc() +
       theme(legend.position = "bottom",
             legend.title = element_blank())
-
+    
   }
 }
-# 
-# #example of implementation
-# # projdata = all_university_projects
-# 
-# # plot_variable(projdata, CoordinatingOrganisationTypeOfOrganisationEn)
-# # plot_variable(projdata, CoordinatingOrganisationNameEn)
-# # plot_variable(projdata, FundingOrganisationNameEn)
-# # plot_variable(projdata, TypeOfAwardDescrEn)
-# # plot_variable(projdata, FundingYear)
+
 
 
 # Function used to couple user input into the word cloud call
@@ -369,7 +450,12 @@ tab2 <- tabPanel("Geography",
                              value = c(min(years), max(years)),
                              sep = ""),
                  actionButton("update_map", "Update map"),
-                 uiOutput("map_output_B", width="720px", height="1800px"))
+                 uiOutput("map_output_B", width="720px", height="1800px"),
+                 helpText(div(h5("Legend: "), "Swecris data is shown for Stockholms universitet, KTH, Kungliga tekniska högskolan, Karolinska Institutet, Handelshögskolan i Stockholm, Södertörns högskola, Uppsala universitet, Sveriges lantbruksuniversitet, Mälardalens högskola, Linköpings universitet, Högskolan i Jönköping, Linnéuniversitetet, Linnéuniversitetet, Högskolan i Kalmar, Uppsala universitet, Blekinge Tekniska Högskola, Lunds universitet, Malmö universitet, Högskolan i Halmstad, Göteborgs universitet, Chalmers tekniska högskola, Karlstads universitet, Örebro universitet, Mälardalens Högskola, Högskolan Dalarna, Högskolan i Gävle, Mittuniversitetet, Mittuniversitetet, Umeå universitet, Luleå Tekniska Universitet, and Umeå universitet.")),
+                 helpText(div(
+                   "The interactive map is adapted from ",
+                   tags$a("cartographyvectors.com/", href = "https://cartographyvectors.com/map/1680-sweden-counties")
+                 )))
 
 # ui definition for THIRD module
 # i.e., mapping the funding onto Sweden
@@ -419,7 +505,7 @@ tab4 <- tabPanel("Grant applicants",
 
 ###### HERE IS THE ACTUAL APP: ######
 shinyApp(
-  ui=navbarPage("Welcome to the FUNding application",#theme = bslib::bs_theme(primary = "#78C2AD"),
+  ui=navbarPage("Welcome to the FUNding application", #theme = bslib::bs_theme(primary = "#78C2AD"),
                 tab1,
                 tab2,
                 tab3,
@@ -430,7 +516,12 @@ shinyApp(
   server=function(input,output,session) {
     ####### MODULE 1 [correlation]: ######
     output$plot_output <- renderPlot({
-      plot_variable(small_dataset, !!sym(input$select_input_x)) + theme_bw()
+      plot_variable(small_dataset, !!sym(input$select_input_x)) + theme(
+        axis.title = element_text(size = 16),
+        axis.text = element_text(size = 14),
+        legend.text = element_text(size = 16),
+        title = element_text(size = 18)
+      )
       })
     ###### END ######
     

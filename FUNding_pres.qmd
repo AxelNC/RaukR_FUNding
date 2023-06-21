@@ -82,7 +82,13 @@ all_university_projects %>% colnames()
 
     -   Information related to the **Grant applicants**
 
+<<<<<<< HEAD
 ## Wordcloud process {.smaller}
+=======
+    -   Erc have tried something similar: https://erc.europa.eu/projects-figures/project-database
+
+## Wordcloud process
+>>>>>>> 431ace2f4981d131919d25f6880e189b4e8af93a
 
 ::: columns
 ::: {.column width="60%"}

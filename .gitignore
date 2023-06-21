@@ -3,6 +3,15 @@
 .RData
 .Ruserdata
 <<<<<<< HEAD
+<<<<<<< HEAD
 RaukR_FUNding.Rproj
 =======
 >>>>>>> 8a51a30310f17680723e2a83419100fec76e90c0
+=======
+Downloading_data.R
+swecris_funders.csv
+swecris_funding.csv
+swecris_fundings.csv
+all_university_projects.csv
+images
+>>>>>>> dd55aa4af2cfa1f5bcddfd9d39c1bdc8d9222aa1

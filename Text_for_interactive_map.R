@@ -1,1 +1,3 @@
 "Swecris data is shown for Stockholms universitet, KTH, Kungliga tekniska högskolan, Karolinska Institutet, Handelshögskolan i Stockholm, Södertörns högskola, Uppsala universitet, Sveriges lantbruksuniversitet, Mälardalens högskola, Linköpings universitet, Högskolan i Jönköping, Linnéuniversitetet, Linnéuniversitetet, Högskolan i Kalmar, Uppsala universitet, Blekinge Tekniska Högskola, Lunds universitet, Malmö universitet, Högskolan i Halmstad, Göteborgs universitet, Chalmers tekniska högskola, Karlstads universitet, Örebro universitet, Mälardalens Högskola, Högskolan Dalarna, Högskolan i Gävle, Mittuniversitetet, Mittuniversitetet, Umeå universitet, Luleå Tekniska Universitet and Umeå universitet."
+
+"The interactive map is adapted from https://cartographyvectors.com/"

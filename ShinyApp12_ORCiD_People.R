@@ -33,7 +33,37 @@
 
 ###### END ######
 
-
+###### Pre-calculate this ######
+### Generation of frequencies of people being part of projects
+# Added 2023-06-21 16:15
+# #frequency of projects by orcidId
+# data_filtered_orcid <- all_university_projects_people  %>% filter(!is.na(orcId))
+# project_counts_orcid <- sapply(unique(data_filtered_orcid$orcId), function(id) sum(data_filtered_orcid$orcId == id, na.rm = T))
+# freq_orcid <- table(project_counts_orcid)
+# freq_orcid <- data.frame(Projects = as.numeric(names(freq_orcid)), Frequency = as.numeric(freq_orcid))
+# 
+# #top 10 scientists by orcid id
+# project_counts_orcid_df <- as.data.frame(project_counts_orcid)
+# project_counts_orcid_df_sort <- project_counts_orcid_df %>% arrange(desc(project_counts_orcid))
+# project_counts_orcid_df_sort$fullName <- data_filtered_orcid$fullName[match(rownames(project_counts_orcid_df_sort), data_filtered_orcid$orcId)]
+# 
+# top_10_orcid <- head(project_counts_orcid_df_sort, 10)
+# top_10_orcid$fullName <- factor(top_10_orcid$fullName, levels = top_10_orcid$fullName)
+# 
+# #frequency of projects by name
+# data_filtered_name <- all_university_projects_people  %>% filter(!is.na(fullName))
+# project_counts_name <- sapply(unique(data_filtered_name$fullName), function(id) sum(data_filtered_name$fullName == id, na.rm = T))
+# freq_name <- table(project_counts_name)
+# freq_name <- data.frame(Projects = as.numeric(names(freq_name)), Frequency = as.numeric(freq_name))
+# 
+# #top 10 scientists by name
+# project_counts_name_df <- as.data.frame(project_counts_name)
+# project_counts_name_df_sort  <- project_counts_name_df %>% arrange(desc(project_counts_name))
+# project_counts_name_df_sort$fullName <- data_filtered_name$fullName[match(rownames(project_counts_name_df_sort), data_filtered_name$fullName)]
+# 
+# top_10_name <- head(project_counts_name_df_sort, 10)
+# top_10_name$fullName <- factor(top_10_name$fullName, levels = top_10_name$fullName)
+###### END ######
 
 ######## Functions ######
 # #==== Function from Mauricio 2023-06-20 18:20
@@ -253,8 +283,13 @@ all_university_projects_people_mean <- aggregate(FundingsSek ~ FundingYear + gen
 min_funding <- min(all_university_projects_people_mean$FundingsSek)
 max_funding <- max(all_university_projects_people_mean$FundingsSek)
 # Selection of plots
-gender_plot_list <- c("plot1", "plot2")
-names(gender_plot_list) <- c("Average funding per gender", "Average funding per gender over time")
+gender_plot_list <- c("plot1", "plot2", "plot3", "plot4", "plot5", "plot6")
+names(gender_plot_list) <- c("Average funding per gender", 
+                             "Average funding per gender over time",
+                             "Number of projects per personal name",
+                             "Personal names associated with the most projects",
+                             "Number of projects per ORCID iD",
+                             "ORCID iDs associated with the most projects")
 
 ####### END #######
 
@@ -502,8 +537,7 @@ tab4 <- tabPanel("Grant applicants",
                                  choices = gender_plot_list)
                    ),
                    mainPanel(
-                     uiOutput("ui"),
-                     textOutput("gender_disclaimer")
+                     uiOutput("ui")
                      )
                    )
                  )
@@ -682,7 +716,70 @@ shinyApp(
               legend.text = element_text(size = 18)
             )
         })
-        output$gender_disclaimer <- renderText({"Gender data only available for years 2020–2023."})
+      }
+      else if(input$gender_input_selection=="plot3") {
+        output$gender_plot <- renderPlot({
+          ggplot(freq_name, aes(x = Projects, y = Frequency)) +
+            geom_bar(stat = "identity", fill = "grey") +
+            labs(x = "Number of projects for a given name", y = "Count") +
+            theme_classic() +
+            theme(axis.title.x = element_text(size = 12),
+                  axis.title.y = element_text(size = 12)) +
+            scale_x_continuous(breaks = seq(0, max(freq_name$Projects), by = 20)) +
+            scale_y_sqrt(breaks = pretty(range(freq_name$Frequency), n = 5), expand = c(0,0)) +
+            theme(
+              axis.title = element_text(size=18),
+              axis.text = element_text(size = 14),
+              legend.text = element_text(size = 18)
+            )
+        })
+      }
+      else if(input$gender_input_selection=="plot4") {
+        output$gender_plot <- renderPlot({
+          ggplot(top_10_name, aes(x = fullName, y = project_counts_name)) +
+            geom_bar(stat = "identity", fill = "grey") +
+            labs(x = "Name of top 10 scientists", y = "number of projects") +
+            theme_classic() +
+            theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+            scale_y_continuous(expand = c(0, 0)) +
+            theme(
+              axis.title = element_text(size=18),
+              axis.text = element_text(size = 14),
+              legend.text = element_text(size = 18)
+            )
+        })
+      }
+      else if(input$gender_input_selection=="plot5") {
+        output$gender_plot <- renderPlot({
+          ggplot(freq_orcid, aes(x = Projects, y = Frequency)) +
+            geom_bar(stat = "identity", fill = "grey") +
+            labs(x = "Number of Projects for a given ORCID iD", y = "Count") +
+            theme_classic() +
+            theme(axis.title.x = element_text(size = 12),
+                  axis.title.y = element_text(size = 12)) +
+            scale_x_continuous(breaks = seq(0, 120, by = 20), limits = c(0, 80)) +
+            scale_y_sqrt(breaks = c(10, 100, 1000, 10000), expand = c(0, 0), limits = c(0, 10000)) +
+            theme(
+              axis.title = element_text(size=18),
+              axis.text = element_text(size = 14),
+              legend.text = element_text(size = 18)
+            )
+        })
+      }
+      else if(input$gender_input_selection=="plot6") {
+        output$gender_plot <- renderPlot({
+          ggplot(top_10_orcid, aes(x = fullName, y = project_counts_orcid)) +
+            geom_bar(stat = "identity", fill = "grey") +
+            labs(x = "Name of top 10 scientists", y = "number of projects") +
+            theme_classic() +
+            theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+            scale_y_continuous(expand = c(0, 0)) +
+            theme(
+              axis.title = element_text(size=18),
+              axis.text = element_text(size = 14),
+              legend.text = element_text(size = 18)
+            )
+        })
       }
     })
     ###### END ######
@@ -690,48 +787,3 @@ shinyApp(
     
   })
 ###### END ######
-
-
-# #frequency of projects by orcidId
-# data_filtered_orcid <- all_university_projects_people  %>% filter(!is.na(orcId))
-# project_counts_orcid <- sapply(unique(data_filtered_orcid$orcId), function(id) sum(data_filtered_orcid$orcId == id, na.rm = T))
-# freq_orcid <- table(project_counts_orcid)
-# freq_orcid <- data.frame(Projects = as.numeric(names(freq_orcid)), Frequency = as.numeric(freq_orcid))
-# 
-# ggplot(freq_orcid, aes(x = Projects, y = Frequency)) +
-#   geom_bar(stat = "identity", fill = "grey") +
-#   labs(x = "Number of Projects by orcid Id", y = "√Frequency") +
-#   theme_classic() +
-#   theme(axis.title.x = element_text(size = 12),
-#         axis.title.y = element_text(size = 12)) +
-#   scale_x_continuous(breaks = seq(0, max(freq_orcid$Projects), by = 20)) +
-#   scale_y_sqrt(breaks = pretty(range(freq_orcid$Frequency), n = 5), expand = c(0, 0))
-# #-------------------------------------------------
-# #top 10 scientists by orcid id
-# project_counts_orcid_df <- as.data.frame(project_counts_orcid)
-# project_counts_orcid_df_sort <- project_counts_orcid_df %>% arrange(desc(project_counts_orcid))
-# project_counts_orcid_df_sort$fullName <- data_filtered_orcid$fullName[match(rownames(project_counts_orcid_df_sort), data_filtered_orcid$orcId)]
-# 
-# top_10 <- head(project_counts_orcid_df_sort, 10)
-# top_10$fullName <- factor(top_10$fullName, levels = top_10$fullName)
-# ggplot(top_10, aes(x = fullName, y = project_counts_orcid)) +
-#   geom_bar(stat = "identity", fill = "grey") +
-#   labs(x = "Name of top 10 scientists", y = "√Frequency of projects") +
-#   theme_classic() +
-#   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-#   scale_y_continuous(expand = c(0, 0))
-# #-------------------------------------------------
-# #frequency of projects by name
-# data_filtered_name <- all_university_projects_people  %>% filter(!is.na(fullName))
-# project_counts_name <- sapply(unique(data_filtered_name$fullName), function(id) sum(data_filtered_name$fullName == id, na.rm = T))
-# freq_name <- table(project_counts_name)
-# freq_name <- data.frame(Projects = as.numeric(names(freq_name)), Frequency = as.numeric(freq_name))
-# 
-# ggplot(freq_name, aes(x = Projects, y = Frequency)) +
-#   geom_bar(stat = "identity", fill = "grey") +
-#   labs(x = "Number of Projects by name", y = "√Frequency") +
-#   theme_classic() +
-#   theme(axis.title.x = element_text(size = 12),
-#         axis.title.y = element_text(size = 12)) +
-#   scale_x_continuous(breaks = seq(0, max(freq_name$Projects), by = 20)) +
-#   scale_y_sqrt(breaks = pretty(range(freq_name$Frequency), n = 5), expand = c(0, 0))

@@ -50,7 +50,7 @@ all_university_projects <- swecris_all_university_projects()
 
 ```
 
-## Background cont.
+## Background {.smaller}
 
 ```{r, echo=F}
 library(tidyverse)
@@ -82,7 +82,7 @@ all_university_projects %>% colnames()
 
     -   Information related to the **Grant applicants**
 
-## Wordcloud process
+## Wordcloud process {.smaller}
 
 ::: columns
 ::: {.column width="60%"}
@@ -130,17 +130,23 @@ token_wo_stopwords %>%
 ::: {.column width="40%"}
 All abstracts ( **`r all_university_projects %>% filter(!is.na(ProjectAbstractEn)) %>% count()`** ) were:
 
--   tokenized using tidytext() package, set to lowercase.
+-   Tokenized using `tidytext()` package & all words set to lowercase.
 
--   Stopwords (e.g. if, or, but, also) removed by tidytext::anti_join(stop_words)
+-   Stopwords (e.g. if, or, but, also) removed by `anti_join(stop_words)`
 
--   Word counted by base::count
+-   Word counted by `base::count`
 
--   Wordcloud produced using
+-   Wordcloud produced using `wordcloud` package
 :::
 :::
+
+## Map
+
+the library(leaflet) was used to plot the map.
 
 ## Challenges
 
 -   Rshiny implementation
 -   
+
+## Thank you RaukR!

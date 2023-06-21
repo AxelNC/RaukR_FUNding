@@ -1,6 +1,6 @@
 ---
 title: "FUNding"
-author: "Muricio Roca, Axel Cedholm, Joel Hallgren, Jose A. L. V., Evelyn Halitzki, Mikael Brink"
+author: "Mauricio Roza, Axel Cedholm, Joel Hallgren, Jose A. L. V., Evelyn Halitzki, Mikael Brink"
 format: revealjs
 menu:
   slide-number: true
